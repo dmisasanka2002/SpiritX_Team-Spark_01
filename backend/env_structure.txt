@@ -1,0 +1,3 @@
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET="This is a Secreate"
+CLIENT_URL=http://localhost:5173
