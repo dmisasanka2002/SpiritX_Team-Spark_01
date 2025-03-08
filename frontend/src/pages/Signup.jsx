@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from "react";
-import { Form, Input, Button, message, Typography, Card, Divider, Row, Col, Steps, Alert } from "antd";
+import { Form, Input, Button, message, Typography, Card, Divider, Row, Col, Steps, Alert, Progress } from "antd";
 import { UserOutlined, LockOutlined, MailOutlined, GoogleOutlined, GithubOutlined } from "@ant-design/icons";
 import { signup } from "../api/auth";
 import { useNavigate, Link } from "react-router-dom";
@@ -12,6 +12,8 @@ const Signup = () => {
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
   const [currentStep, setCurrentStep] = useState(0);
+  const [passwordStrength, setPasswordStrength] = useState(0);
+  const [passwordValue, setPasswordValue] = useState("");
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
 
@@ -21,6 +23,38 @@ const Signup = () => {
       navigate("/dashboard");
     }
   }, [user, navigate]);
+
+  // Calculate password strength
+  useEffect(() => {
+    if (!passwordValue) {
+      setPasswordStrength(0);
+      return;
+    }
+
+    let strength = 0;
+    // Length check
+    if (passwordValue.length >= 8) strength += 20;
+    
+    // Complexity checks
+    if (/[a-z]/.test(passwordValue)) strength += 20; // lowercase
+    if (/[A-Z]/.test(passwordValue)) strength += 20; // uppercase
+    if (/[0-9]/.test(passwordValue)) strength += 20; // numbers
+    if (/[^A-Za-z0-9]/.test(passwordValue)) strength += 20; // special characters
+    
+    setPasswordStrength(strength);
+  }, [passwordValue]);
+
+  const getPasswordStrengthStatus = () => {
+    if (passwordStrength <= 20) return "exception";
+    if (passwordStrength <= 60) return "normal";
+    return "success";
+  };
+
+  const getPasswordStrengthText = () => {
+    if (passwordStrength <= 20) return "Weak";
+    if (passwordStrength <= 60) return "Medium";
+    return "Strong";
+  };
 
   const handleSignup = async (values) => {
     // Remove confirmPassword before sending to API
@@ -61,6 +95,23 @@ const Signup = () => {
     }
     return Promise.reject(new Error("The two passwords do not match"));
   };
+
+  const passwordValidationRules = [
+    { required: true, message: "Please enter a password" },
+    { min: 8, message: "Password must be at least 8 characters" },
+    {
+      pattern: /[a-z]/,
+      message: "Password must contain at least one lowercase letter"
+    },
+    {
+      pattern: /[A-Z]/,
+      message: "Password must contain at least one uppercase letter"
+    },
+    {
+      pattern: /[^A-Za-z0-9]/,
+      message: "Password must contain at least one special character"
+    }
+  ];
 
   return (
     <Row justify="center" align="middle" style={{ minHeight: "100vh", background: "#f0f2f5" }}>
@@ -115,18 +166,33 @@ const Signup = () => {
                 
                 <Form.Item
                   name="password"
-                  rules={[
-                    { required: true, message: "Please enter a password" },
-                    { min: 8, message: "Password must be at least 8 characters" }
-                  ]}
+                  rules={passwordValidationRules}
                   hasFeedback
                 >
                   <Input.Password
                     prefix={<LockOutlined style={{ color: "rgba(0,0,0,.25)" }} />}
                     placeholder="Password"
                     size="large"
+                    onChange={(e) => setPasswordValue(e.target.value)}
                   />
                 </Form.Item>
+                
+                {passwordValue && (
+                  <div style={{ marginBottom: "16px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
+                      <Text type="secondary">Password Strength:</Text>
+                      <Text type={getPasswordStrengthStatus() === "exception" ? "danger" : "secondary"}>
+                        {getPasswordStrengthText()}
+                      </Text>
+                    </div>
+                    <Progress 
+                      percent={passwordStrength} 
+                      status={getPasswordStrengthStatus()} 
+                      showInfo={false} 
+                      size="small" 
+                    />
+                  </div>
+                )}
                 
                 <Form.Item
                   name="confirmPassword"
