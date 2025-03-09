@@ -1,19 +1,27 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import Signup from "./pages/Signup";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import PrivateRoute from "./routes/PrivateRoute";
+import { ConfigProvider } from "antd";
+import "antd/dist/reset.css";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <button className="bg-blue-500 text-white px-4 py-2 rounded">
-  Click Me
-</button>
-
-    </>
-  )
+    <ConfigProvider>
+      <AuthProvider>
+        <Router>
+          <Routes>
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+            <Route path="*" element={<Login />} />
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </ConfigProvider>
+  );
 }
 
-export default App
+export default App;
