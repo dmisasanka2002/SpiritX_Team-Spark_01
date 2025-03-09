@@ -86,6 +86,7 @@ const Signup = () => {
 
   const handleSocialSignup = (provider) => {
     message.info(`${provider} registration is not implemented yet`);
+    console.log(`${provider} registration is not implemented yet`)
   };
 
   const validatePassword = (_, value) => {

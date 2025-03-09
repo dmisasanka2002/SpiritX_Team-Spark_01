@@ -8,6 +8,7 @@ dotenv.config();
 export const register = async (req, res) => {
   try {
     const { username, email, password } = req.body;
+    console.log(req.body)
     const userExists = await User.findOne({ username });
     if (userExists) return res.status(400).json({ message: "Username already exists" });
 
@@ -22,6 +23,7 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { username, password } = req.body;
+    console.log(req.body)
     const user = await User.findOne({ username });
     if (!user) return res.status(400).json({ message: "Invalid username or password" });
 

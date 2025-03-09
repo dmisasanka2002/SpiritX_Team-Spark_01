@@ -8,6 +8,8 @@ import authRoutes from "./routes/authRoutes.js";
 dotenv.config();
 const app = express();
 
+const MONGO_URI = process.env.MONGO_URI;
+
 // Middleware
 app.use(express.json());
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
@@ -17,8 +19,12 @@ app.use(cookieParser());
 app.use("/api/auth", authRoutes);
 
 
+app.get("/", (req, res) => {
+  res.send("API is running....");
+});
+
 // Database Connection
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect(MONGO_URI)
 .then(() => console.log("MongoDB Connected"))
 .catch((err) => console.error("MongoDB Connection Error:", err));
 
